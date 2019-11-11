@@ -20,6 +20,12 @@ $kmsProductKeysFile = "$scriptPath\kms_product_keys.json"
 Import-Module "$scriptPath\Config.psm1"
 Import-Module "$scriptPath\UnattendResources\ini.psm1"
 
+If(-not (Test-Path -Path "C:\Program Files (x86)\Windows Kits\10\Assessment and Deployment Kit\Deployment Tools\amd64\DISM\dism.exe" -PathType Leaf)){
+	$dismExe="${env:windir}\System32\dism.exe"
+}else{
+	$dismExe="${env:ProgramFiles(x86)}\Windows Kits\10\Assessment and Deployment Kit\Deployment Tools\amd64\DISM\dism.exe" 
+}
+
 # Enforce Tls1.2, as GitHub and more websites require it.
 [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
 
@@ -209,7 +215,7 @@ function Apply-Image {
     #Expand-WindowsImage -ImagePath $wimFilePath -Index $imageIndex -ApplyPath $winImagePath
     # Use Dism in place of the PowerShell equivalent for better progress update
     # and for ease of interruption with CTRL+C
-    & Dism.exe /apply-image /imagefile:${wimFilePath} /index:${imageIndex} /ApplyDir:${winImagePath}
+    & "$dismExe" /apply-image /imagefile:${wimFilePath} /index:${imageIndex} /ApplyDir:${winImagePath}
     if ($LASTEXITCODE) { throw "Dism apply-image failed" }
 }
 
@@ -366,7 +372,7 @@ function Check-DismVersionForImage {
         [object]$image
     )
     $dismVersion = New-Object System.Version `
-        (Get-Command dism.exe).FileVersionInfo.ProductVersion
+        (Get-Command "$dismExe").FileVersionInfo.ProductVersion
     if ($image.ImageVersion.CompareTo($dismVersion) -gt 0) {
         Write-Warning "The installed version of DISM is older than the Windows image"
     }
@@ -604,7 +610,7 @@ function Add-DriversToImage {
     )
     Write-Log ('Adding drivers from "{0}" to image "{1}"' -f $driversPath, $winImagePath)
     Execute-Retry {
-        & Dism.exe /image:${winImagePath} /Add-Driver /driver:${driversPath} /ForceUnsigned /recurse
+        & "$dismExe" /image:${winImagePath} /Add-Driver /driver:${driversPath} /ForceUnsigned /recurse
         if ($LASTEXITCODE) {
             throw "Dism failed to add drivers from: $driversPath"
         }
@@ -621,7 +627,7 @@ function Add-PackageToImage {
         [boolean]$ignoreErrors
     )
     Write-Log ('Adding packages from "{0}" to image "{1}"' -f $packagePath, $winImagePath)
-    & Dism.exe /image:${winImagePath} /Add-Package /Packagepath:${packagePath}
+    & "$dismExe" /image:${winImagePath} /Add-Package /Packagepath:${packagePath}
     if ($LASTEXITCODE -and !$ignoreErrors) {
         throw "Dism failed to add packages from: $packagePath"
     } elseif ($LASTEXITCODE) {
@@ -638,7 +644,7 @@ function Enable-FeaturesInImage {
     )
     if ($featureNames) {
         $cmd = @(
-        "Dism.exe",
+        "$dismExe",
         ("/image:{0}" -f ${winImagePath}),
         "/Enable-Feature"
         )
@@ -662,7 +668,7 @@ function Add-CapabilitiesToImage {
     )
     if ($capabilityNames) {
         $cmd = @(
-        "Dism.exe",
+        "$dismExe",
         ("/image:{0}" -f ${winImagePath}),
         "/Add-Capability"
         )
@@ -1415,9 +1421,9 @@ function Clean-WindowsUpdates {
     if (([System.Environment]::OSVersion.Version.Major -gt 6) -or ([System.Environment]::OSVersion.Version.Minor -ge 2))
     {
         if (!$PurgeUpdates) {
-            Dism.exe /image:${winImagePath} /Cleanup-Image /StartComponentCleanup
+            $dismExe /image:${winImagePath} /Cleanup-Image /StartComponentCleanup
         } else {
-            Dism.exe /image:${winImagePath} /Cleanup-Image /StartComponentCleanup /ResetBase
+            $dismExe /image:${winImagePath} /Cleanup-Image /StartComponentCleanup /ResetBase
         }
         if ($LASTEXITCODE) {
             throw "Offline dism Cleanup-Image failed."
@@ -2061,7 +2067,7 @@ function Test-OfflineWindowsImage {
             # Test if extra drivers are installed
             if ($windowsImageConfig.virtio_iso_path -or $windowsImageConfig.virtio_base_path `
                     -or $windowsImageConfig.drivers_path) {
-                $dismDriversOutput = (& Dism.exe /image:$mountPoint /Get-Drivers /Format:Table)
+                $dismDriversOutput = (& $dismExe /image:$mountPoint /Get-Drivers /Format:Table)
                 $allDrivers = (Select-String "oem" -InputObject $dismDriversOutput -AllMatches).Matches.Count
                 $virtDrivers = (Select-String "Red Hat, Inc." -InputObject $dismDriversOutput -AllMatches).Matches.Count
                 $virtDrivers += (Select-String "QEMU" -InputObject $dismDriversOutput `
