@@ -1421,9 +1421,9 @@ function Clean-WindowsUpdates {
     if (([System.Environment]::OSVersion.Version.Major -gt 6) -or ([System.Environment]::OSVersion.Version.Minor -ge 2))
     {
         if (!$PurgeUpdates) {
-            $dismExe /image:${winImagePath} /Cleanup-Image /StartComponentCleanup
+            & "$dismExe" /image:${winImagePath} /Cleanup-Image /StartComponentCleanup
         } else {
-            $dismExe /image:${winImagePath} /Cleanup-Image /StartComponentCleanup /ResetBase
+            & "$dismExe" /image:${winImagePath} /Cleanup-Image /StartComponentCleanup /ResetBase
         }
         if ($LASTEXITCODE) {
             throw "Offline dism Cleanup-Image failed."
@@ -2067,7 +2067,7 @@ function Test-OfflineWindowsImage {
             # Test if extra drivers are installed
             if ($windowsImageConfig.virtio_iso_path -or $windowsImageConfig.virtio_base_path `
                     -or $windowsImageConfig.drivers_path) {
-                $dismDriversOutput = (& $dismExe /image:$mountPoint /Get-Drivers /Format:Table)
+                $dismDriversOutput = (& "$dismExe" /image:$mountPoint /Get-Drivers /Format:Table)
                 $allDrivers = (Select-String "oem" -InputObject $dismDriversOutput -AllMatches).Matches.Count
                 $virtDrivers = (Select-String "Red Hat, Inc." -InputObject $dismDriversOutput -AllMatches).Matches.Count
                 $virtDrivers += (Select-String "QEMU" -InputObject $dismDriversOutput `
