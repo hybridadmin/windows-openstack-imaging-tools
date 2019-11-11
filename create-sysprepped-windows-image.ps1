@@ -16,11 +16,11 @@ $ErrorActionPreference = "Stop"
 
 [Net.ServicePointManager]::SecurityProtocol = "tls12"
 
-if(!(Test-Path "C:\apps\Cloudbase\windows-openstack-imaging-tools")){
+$scriptPath = "C:\apps\Cloudbase\windows-openstack-imaging-tools"
+if(!(Test-Path "$scriptPath" -EA 0)){
     & C:\apps\git\bin\git.exe clone https://github.com/cloudbase/windows-openstack-imaging-tools.git  C:\apps\Cloudbase\windows-openstack-imaging-tools
 }
 
-$scriptPath = "C:\apps\Cloudbase\windows-openstack-imaging-tools" #Split-Path -Parent $MyInvocation.MyCommand.Definition | Split-Path
 & C:\apps\git\bin\git.exe -C $scriptPath submodule update --init
 if ($LASTEXITCODE) {
     throw "Failed to update git modules."
@@ -72,8 +72,8 @@ Set-IniFileValue -Path $configFilePath -Section "Default" -Key "virtual_disk_for
 Set-IniFileValue -Path $configFilePath -Section "vm" -Key "disk_size" -Value (30GB)
 Set-IniFileValue -Path $configFilePath -Section "drivers" -Key "virtio_iso_path" -Value $virtIOISOPath
 Set-IniFileValue -Path $configFilePath -Section "drivers" -Key "drivers_path" -Value $extraDriversPath
-Set-IniFileValue -Path $configFilePath -Section "updates" -Key "install_updates" -Value "True"
-Set-IniFileValue -Path $configFilePath -Section "updates" -Key "purge_updates" -Value "True"
+Set-IniFileValue -Path $configFilePath -Section "updates" -Key "install_updates" -Value "False"
+Set-IniFileValue -Path $configFilePath -Section "updates" -Key "purge_updates" -Value "False"
 Set-IniFileValue -Path $configFilePath -Section "sysprep" -Key "disable_swap" -Value "True"
 
 # This scripts generates a raw image file that, after being started as an instance and
