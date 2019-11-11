@@ -44,8 +44,6 @@ $wimFilePath = "E:\Temp\wim\2016std\sources\install.wim"
 
 # VirtIO ISO contains all the synthetic drivers for the KVM hypervisor
 $virtIOISOPath = "E:\Temp\vhdCache\virtio.iso"
-# Note(avladu): Do not use stable 0.1.126 version because of this bug https://github.com/crobinso/virtio-win-pkg-scripts/issues/10
-# Note (atira): Here https://fedorapeople.org/groups/virt/virtio-win/CHANGELOG you can see the changelog for the VirtIO drivers
 $virtIODownloadLink = "https://fedorapeople.org/groups/virt/virtio-win/direct-downloads/archive-virtio/virtio-win-0.1.171-1/virtio-win-0.1.171.iso"
 
 if(!(Test-Path $virtIOISOPath)){
