@@ -4,6 +4,12 @@ $configIniPath = "$resourcesDir\config.ini"
 $customScriptsDir = "$resourcesDir\CustomScripts"
 $logFile = "$resourcesDir\image-generation-log.txt"
 
+If(-not (Test-Path -Path "C:\Program Files (x86)\Windows Kits\10\Assessment and Deployment Kit\Deployment Tools\amd64\DISM\dism.exe" -PathType Leaf)){
+	$dismExe="${env:windir}\System32\dism.exe"
+}else{
+	$dismExe="${env:ProgramFiles(x86)}\Windows Kits\10\Assessment and Deployment Kit\Deployment Tools\amd64\DISM\dism.exe" 
+}
+
 function Set-PersistDrivers {
     Param(
     [parameter(Mandatory=$true)]
@@ -103,12 +109,12 @@ function Clean-WindowsUpdates {
     if (([System.Environment]::OSVersion.Version.Major -gt 6) -or ([System.Environment]::OSVersion.Version.Minor -ge 2))
     {
         if (!$PurgeUpdates) {
-            Dism.exe /Online /Cleanup-Image /StartComponentCleanup
+            & "$dismExe" /Online /Cleanup-Image /StartComponentCleanup
         } else {
-            Dism.exe /Online /Cleanup-Image /StartComponentCleanup /ResetBase
+            & "$dismExe" /Online /Cleanup-Image /StartComponentCleanup /ResetBase
         }
         if ($LASTEXITCODE) {
-            throw "Dism.exe clean failed"
+            throw "$dismExe clean failed"
         }
         Write-Log "Cleanup" "Updates were cleaned up succesfully"
     }
