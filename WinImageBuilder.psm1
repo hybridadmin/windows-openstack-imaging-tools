@@ -45,6 +45,8 @@ Enable-WindowsOptionalFeature -Online -FeatureName Microsoft-Hyper-V-Management-
 Don't forget to reboot after you install the Hyper-V role.
 "@
 
+### Check for windows 2019 support - https://github.com/cloudbase/windows-openstack-imaging-tools/pull/274/files/443a91cad74910dc9b5e807a1ef2bbf3aff8a074
+
 $VirtIODrivers = @("balloon", "netkvm", "pvpanic", "qemupciserial", "qxl",
              "qxldod", "vioinput", "viorng", "vioscsi", "vioserial", "viostor")
 
