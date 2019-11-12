@@ -22,8 +22,12 @@ Import-Module "$scriptPath\UnattendResources\ini.psm1"
 
 If(-not (Test-Path -Path "C:\Program Files (x86)\Windows Kits\10\Assessment and Deployment Kit\Deployment Tools\amd64\DISM\dism.exe" -PathType Leaf)){
 	$dismExe="${env:windir}\System32\dism.exe"
+	$bcdBootExe="${env:windir}\System32\bcdboot.exe"
+	$bcdEditExe="${env:windir}\System32\bcdedit.exe"
 }else{
-	$dismExe="${env:ProgramFiles(x86)}\Windows Kits\10\Assessment and Deployment Kit\Deployment Tools\amd64\DISM\dism.exe" 
+	$dismExe="${env:ProgramFiles(x86)}\Windows Kits\10\Assessment and Deployment Kit\Deployment Tools\amd64\DISM\dism.exe"
+    	$bcdBootExe="${env:ProgramFiles(x86)}\Windows Kits\10\Assessment and Deployment Kit\Deployment Tools\amd64\BCDBoot\bcdboot.exe"
+	$bcdEditExe="${env:ProgramFiles(x86)}\Windows Kits\10\Assessment and Deployment Kit\Deployment Tools\amd64\BCDBoot\bcdedit.exe"
 }
 
 # Enforce Tls1.2, as GitHub and more websites require it.
