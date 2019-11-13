@@ -22,12 +22,12 @@ Import-Module "$scriptPath\UnattendResources\ini.psm1"
 
 If(-not (Test-Path -Path "C:\Program Files (x86)\Windows Kits\10\Assessment and Deployment Kit\Deployment Tools\amd64\DISM\dism.exe" -PathType Leaf)){
 	$dismExe="${env:windir}\System32\dism.exe"
-	$bcdBootExe="${env:windir}\System32\bcdboot.exe"
-	$bcdEditExe="${env:windir}\System32\bcdedit.exe"
+	$bcdbootLocalPath="${env:windir}\System32\bcdboot.exe"
+	$bcdeditPath="${env:windir}\System32\bcdedit.exe"
 }else{
 	$dismExe="${env:ProgramFiles(x86)}\Windows Kits\10\Assessment and Deployment Kit\Deployment Tools\amd64\DISM\dism.exe"
-    	$bcdBootExe="${env:ProgramFiles(x86)}\Windows Kits\10\Assessment and Deployment Kit\Deployment Tools\amd64\BCDBoot\bcdboot.exe"
-	$bcdEditExe="${env:ProgramFiles(x86)}\Windows Kits\10\Assessment and Deployment Kit\Deployment Tools\amd64\BCDBoot\bcdedit.exe"
+   	$bcdbootPath="${env:ProgramFiles(x86)}\Windows Kits\10\Assessment and Deployment Kit\Deployment Tools\amd64\BCDBoot\bcdboot.exe"
+	$bcdeditPath="${env:ProgramFiles(x86)}\Windows Kits\10\Assessment and Deployment Kit\Deployment Tools\amd64\BCDBoot\bcdedit.exe"
 }
 
 # Enforce Tls1.2, as GitHub and more websites require it.
@@ -238,11 +238,11 @@ function Reset-BCDSearchOrder {
     if ($diskLayout -eq "BIOS") {
         Write-Log "Resetting BCD boot border"
         $ErrorActionPreference = "SilentlyContinue"
-        $bcdeditPath = "${windowsDrive}\windows\system32\bcdedit.exe"
-        if (!(Test-Path $bcdeditPath)) {
-            Write-Warning ('"{0}" not found, using online version' -f $bcdeditPath)
-            $bcdeditPath = "bcdedit.exe"
-        }
+        #$bcdeditPath = "${windowsDrive}\windows\system32\bcdedit.exe"
+        #if (!(Test-Path $bcdeditPath)) {
+        #    Write-Warning ('"{0}" not found, using online version' -f $bcdeditPath)
+        #    $bcdeditPath = "bcdedit.exe"
+        #}
 
         & $bcdeditPath /store ${systemDrive}\boot\BCD /set `{bootmgr`} device locate
         if ($LASTEXITCODE) { Write-Warning "BCDEdit failed: bootmgr device locate" }
@@ -269,12 +269,12 @@ function Create-BCDBootConfig {
     )
 
     Write-Log ("Create BCDBoot Config for {0}" -f @($image.ImageName))
-    $bcdbootLocalPath = "bcdboot.exe"
-    $bcdbootPath = "${windowsDrive}\windows\system32\bcdboot.exe"
-    if (!(Test-Path $bcdbootPath)) {
-        Write-Warning ('"{0}" not found, using online version' -f $bcdbootPath)
-        $bcdbootPath = $bcdbootLocalPath
-    }
+    #$bcdbootLocalPath = "bcdboot.exe"
+    #$bcdbootPath = "${windowsDrive}\windows\system32\bcdboot.exe"
+    #if (!(Test-Path $bcdbootPath)) {
+    #    Write-Warning ('"{0}" not found, using online version' -f $bcdbootPath)
+    #    $bcdbootPath = $bcdbootLocalPath
+    #}
 
     $ErrorActionPreference = "SilentlyContinue"
     # Note: older versions of bcdboot.exe don't have a /f argument
